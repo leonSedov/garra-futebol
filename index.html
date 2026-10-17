@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrícula - Garra FC</title>
+    <!-- Fonte esportiva do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Paleta de cores baseada na logo do Garra FC */
+        :root {
+            --garra-red: #b30000;
+            --garra-dark-red: #660000;
+            --garra-gold: #f1c40f;
+            --garra-dark: #121212;
+            --garra-gray: #2a2a2a;
+            --garra-light: #f4f4f4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--garra-dark);
+            /* Fundo com leve degradê escuro */
+            background-image: radial-gradient(circle at top, var(--garra-dark-red) 0%, var(--garra-dark) 70%);
+            color: var(--garra-light);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--garra-gray);
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            border: 3px solid var(--garra-gold);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        .header-logo {
+            background-color: var(--garra-dark);
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px solid var(--garra-red);
+        }
+
+        .header-logo img {
+            max-width: 200px;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(241, 196, 15, 0.3));
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--garra-gold);
+            text-align: center;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        /* Agrupamento de seções */
+        fieldset {
+            border: 1px solid var(--garra-red);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        legend {
+            font-family: 'Oswald', sans-serif;
+            background-color: var(--garra-red);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid var(--garra-gold);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            flex: 100%;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #ddd;
+            font-weight: 500;
+        }
+
+        label span {
+            color: var(--garra-red);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-size: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--garra-gold);
+            box-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+        }
+
+        /* Checkboxes de Autorização */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: var(--garra-red);
+        }
+
+        .checkbox-group label {
+            font-size: 14px;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--garra-gold);
+            color: var(--garra-dark);
+            border: none;
+            border-radius: 6px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin-top: 10px;
+            box-shadow: 0 4px 0 #b08d0a;
+        }
+
+        button:hover {
+            background-color: #ffd633;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #b08d0a;
+        }
+
+        button:disabled {
+            background-color: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .success { background-color: #1e7e34; color: white; display: block !important; border: 1px solid #28a745;}
+        .error { background-color: #721c24; color: white; display: block !important; border: 1px solid #f5c6cb;}
+        .loading { background-color: var(--garra-gold); color: var(--garra-dark); display: block !important; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-logo">
+            <!-- COLOCAR A IMAGEM NA MESMA PASTA DO HTML -->
+            <img src="logo.png" alt="Logo Garra FC">
+        </div>
+
+        <div class="form-content">
+            <h2>Ficha de Matrícula</h2>
+            
+            <form id="matriculaForm">
+                
+                <!-- DADOS DO ALUNO -->
+                <fieldset>
+                    <legend>Dados do Atleta</legend>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="nome">Nome Completo <span>*</span></label>
+                            <input type="text" id="nome" name="nome" required placeholder="Nome do aluno">
+                        </div>
+                        <div class="form-group">
+                            <label for="dataNascimento">Data de Nascimento <span>*</span></label>
+                            <input type="date" id="dataNascimento" name="dataNascimento" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpf">CPF do Aluno</label>
+                            <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoria">Categoria <span>*</span></label>
+                            <select id="categoria" name="categoria" required>
+                                <option value="">Selecione...</option>
+                                <option value="Sub-07">Sub-07</option>
+                                <option value="Sub-09">Sub-09</option>
+                                <option value="Sub-11">Sub-11</option>
+                                <option value="Sub-13">Sub-13</option>
+                                <option value="Sub-15">Sub-15</option>
+                                <option value="Sub-17">Sub-17</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="posicao">Posição em Campo <span>*</span></label>
+                            <select id="posicao" name="posicao" required>
+                                <option value="">Selecione...</option>
+                                <option value="Goleiro">Goleiro</option>
+                                <option value="Zagueiro">Zagueiro</option>
+                                <option value="Lateral">Lateral</option>
+                                <option value="Volante">Volante</option>
+                                <option value="Meia">Meia</option>
+                                <option value="Atacante">Atacante</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pePreferido">Pé Preferido</label>
+                            <select id="pePreferido" name="pePreferido">
+                                <option value="Direito">Direito</option>
+                                <option value="Esquerdo">Esquerdo</option>
+                                <option value="Ambos">Ambos</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- DADOS DO RESPONSÁVEL -->
+                <fieldset>
+                    <legend>Dados do Responsável</legend>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="responsavel">Nome do Responsável <span>*</span></label>
+                            <input type="text" id="responsavel" name="responsavel" required placeholder="Nome do pai, mãe ou tutor">
+                        </div>
+                        <div class="form-group">
+                            <label for="cpfResponsavel">CPF do Responsável</label>
+                            <input type="text" id="cpfResponsavel" name="cpfResponsavel" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">Telefone / WhatsApp <span>*</span></label>
+                            <input type="tel" id="telefone" name="telefone" required placeholder="(00) 90000-0000">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" name="email" placeholder="email@exemplo.com">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- INFORMAÇÕES MÉDICAS -->
+                <fieldset>
+                    <legend>Informações Médicas</legend>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipoSanguineo">Tipo Sanguíneo</label>
+                            <input type="text" id="tipoSanguineo" name="tipoSanguineo" placeholder="Ex: O+">
+                        </div>
+                        <div class="form-group">
+                            <label for="contatoEmergencia">Contato de Emergência (Nome e Tel)</label>
+                            <input type="text" id="contatoEmergencia" name="contatoEmergencia" placeholder="Ex: Maria (11) 99999-9999">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="alergias">Alergias ou Condições Médicas (Asma, diabetes, etc.)</label>
+                            <textarea id="alergias" name="alergias" rows="2" placeholder="Se não houver, deixe em branco."></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- AUTORIZAÇÕES -->
+                <fieldset>
+                    <legend>Autorizações e Termos</legend>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="termoImagem" name="termoImagem" value="Sim" required>
+                        <label for="termoImagem">Autorizo o uso da imagem do atleta para fins de divulgação do Garra FC em redes sociais e materiais do clube. <span>*</span></label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="termoSaude" name="termoSaude" value="Sim" required>
+                        <label for="termoSaude">Declaro que o aluno está apto fisicamente para a prática de atividades esportivas e autorizo atendimento médico de emergência. <span>*</span></label>
+                    </div>
+                </fieldset>
+
+                <button type="submit" id="btnSubmit">Efetuar Matrícula</button>
+            </form>
+            
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ SUBSTITUA PELA URL DO SEU WEBHOOK DO N8N
+        const N8N_WEBHOOK_URL = 'https://sua-instancia-n8n.com/webhook/matricula-garrafc';
+
+        document.getElementById('matriculaForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+            
+            const btnSubmit = document.getElementById('btnSubmit');
+            const messageDiv = document.getElementById('message');
+            const form = event.target;
+
+            // Coleta os dados. O Object.fromEntries converte o FormData para um objeto JSON.
+            // Checkboxes não marcados não aparecem no FormData, então tratamos isso no n8n (ou usando IF no Code node)
+            const formData = new FormData(form);
+            const dadosAluno = Object.fromEntries(formData.entries());
+
+            // Adicionando timestamp de quando a matrícula foi feita
+            dadosAluno.dataMatricula = new Date().toISOString();
+
+            // Estado de carregamento
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Enviando...';
+            messageDiv.className = 'loading';
+            messageDiv.textContent = 'Processando matrícula, aguarde...';
+            messageDiv.style.display = 'block';
+
+            try {
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dadosAluno)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.statusText}`);
+                }
+
+                // Tenta ler a resposta do n8n, se houver
+                const result = await response.json().catch(() => ({})); 
+                
+                messageDiv.textContent = result.mensagem || 'Matrícula realizada com sucesso! Bem-vindo ao Garra FC!';
+                messageDiv.className = 'success';
+                
+                // Limpa o formulário após sucesso
+                form.reset(); 
+
+            } catch (error) {
+                console.error('Erro ao enviar matrícula:', error);
+                messageDiv.textContent = 'Ocorreu um erro ao enviar a matrícula. Verifique sua conexão e tente novamente.';
+                messageDiv.className = 'error';
+            } finally {
+                // Restaura o botão
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = 'Efetuar Matrícula';
+                
+                // Opcional: Esconder a mensagem após 5 segundos
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garra FC - Financeiro</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --red-primary: #d31010;
+            --red-dark: #8a0000;
+            --gold: #f1c40f;
+            --bg-dark: #0f0f0f;
+            --bg-panel: rgba(30, 30, 30, 0.85);
+            --text-light: #f4f4f4;
+            --text-muted: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 260px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-dark); background-image: radial-gradient(circle at 0% 0%, rgba(211, 16, 16, 0.15) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(241, 196, 15, 0.05) 0%, transparent 50%); color: var(--text-light); display: flex; min-height: 100vh; overflow-x: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-width); background: rgba(15, 15, 15, 0.95); border-right: 1px solid var(--border-color); padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 10; }
+        .sidebar-logo { text-align: center; margin-bottom: 40px; }
+        .sidebar-logo img { max-width: 140px; filter: drop-shadow(0 0 10px rgba(241, 196, 15, 0.3)); }
+        .nav-links { list-style: none; flex: 1; }
+        .nav-links li { padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; color: var(--text-muted); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 12px; font-weight: 500; }
+        .nav-links li:hover, .nav-links li.active { background: rgba(211, 16, 16, 0.1); color: var(--gold); border-left: 3px solid var(--gold); }
+        .nav-links li i { width: 20px; text-align: center; }
+
+        /* MAIN */
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 30px; width: calc(100% - var(--sidebar-width)); }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title h1 { font-family: 'Oswald', sans-serif; font-size: 28px; text-transform: uppercase; letter-spacing: 1px; }
+        .page-title p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        .user-profile { display: flex; align-items: center; gap: 15px; background: var(--bg-panel); padding: 8px 15px; border-radius: 30px; border: 1px solid var(--border-color); }
+
+        /* METRICS & CHARTS */
+        .top-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+        @media (max-width: 992px) { .top-grid { grid-template-columns: 1fr; } }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .metric-card { background: var(--bg-panel); backdrop-filter: blur(10px); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; border-bottom: 3px solid var(--red-primary); }
+        .metric-card.green { border-bottom-color: #2ecc71; }
+        .metric-card.red { border-bottom-color: #e74c3c; }
+        
+        .metric-card h3 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .metric-card .value { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-light); }
+        .metric-card .value span { font-size: 16px; color: var(--text-muted); }
+
+        .chart-box { background: var(--bg-panel); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .chart-box h3 { font-family: 'Oswald', sans-serif; font-size: 16px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 15px; }
+        .chart-container { width: 100%; height: 180px; position: relative; }
+
+        /* TOOLBAR */
+        .toolbar { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+        .filter-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; }
+        .input-control { background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); color: white; padding: 10px 15px; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.3s; width: 100%; }
+        .input-control:focus { border-color: var(--gold); }
+        .input-control option { background: var(--bg-dark); }
+
+        /* TABLE */
+        .table-section { background: var(--bg-panel); backdrop-filter: blur(10px); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; overflow: hidden; }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 15px 10px; border-bottom: 2px solid var(--red-dark); color: var(--text-muted); font-weight: 500; font-size: 12px; text-transform: uppercase; }
+        td { padding: 15px 10px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
+        tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; text-transform: uppercase; }
+        .badge-green { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+        .badge-red { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+        .badge-gold { background: rgba(241, 196, 15, 0.15); color: var(--gold); border: 1px solid rgba(241, 196, 15, 0.3); }
+
+        .btn { padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-pay { background: #2ecc71; color: #000; }
+        .btn-pay:hover { background: #27ae60; }
+        .btn-pay:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+        #loading { text-align: center; padding: 50px; font-size: 18px; color: var(--gold); }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo"><img src="logo.png" alt="Garra FC"></div>
+        <ul class="nav-links">
+            <li onclick="window.location.href='dashboard.html'"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
+            <li onclick="window.location.href='alunos.html'"><i class="fa-solid fa-users"></i> Alunos</li>
+            <li onclick="window.location.href='turmas.html'"><i class="fa-solid fa-calendar-check"></i> Turmas</li>
+            <li class="active"><i class="fa-solid fa-file-invoice"></i> Financeiro</li>
+            <li style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <div class="page-title">
+                <h1>Gestão Financeira</h1>
+                <p>Controle de mensalidades e inadimplência.</p>
+            </div>
+            <div class="user-profile">
+                <i class="fa-solid fa-user-shield" style="color: var(--gold);"></i>
+                <span>Admin Garra FC</span>
+            </div>
+        </div>
+
+        <div id="loading"><i class="fa-solid fa-spinner fa-spin"></i> Carregando dados financeiros...</div>
+
+        <div id="content" style="display: none;">
+            <!-- TOP GRID -->
+            <div class="top-grid">
+                <div class="metrics-grid">
+                    <div class="metric-card green">
+                        <h3>Recebido no Mês</h3>
+                        <div class="value"><span>R$</span> <span id="totalRecebido">0,00</span></div>
+                    </div>
+                    <div class="metric-card red">
+                        <h3>Pendente / Atrasado</h3>
+                        <div class="value"><span>R$</span> <span id="totalPendente">0,00</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Alunos Adimplentes</h3>
+                        <div class="value" id="alunosPagos">0 <span id="totalAlunos">/ 0</span></div>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <h3>Status do Mês</h3>
+                    <div class="chart-container"><canvas id="chartFinanceiro"></canvas></div>
+                </div>
+            </div>
+
+            <!-- TOOLBAR -->
+            <div class="toolbar">
+                <div class="filter-group">
+                    <label>Mês de Referência</label>
+                    <input type="month" id="filterMes" class="input-control">
+                </div>
+                <div class="filter-group">
+                    <label>Valor da Mensalidade (R$)</label>
+                    <input type="number" id="valorMensalidade" class="input-control" value="150" step="10">
+                </div>
+                <div class="filter-group" style="flex: 2;">
+                    <label>Buscar Aluno</label>
+                    <input type="text" id="searchInput" class="input-control" placeholder="Nome do aluno...">
+                </div>
+                <button class="btn" style="background: var(--gold); color: #000; height: 41px;" onclick="carregarDados()"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+            </div>
+
+            <!-- TABLE -->
+            <div class="table-section">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>Categoria</th>
+                                <th>Mês Ref.</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Data Pagamento</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-financeiro"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ⚠️ URLs DO N8N
+        const N8N_ALUNOS_URL = 'https://sua-instancia-n8n.com/webhook/dashboard-matriculas'; // GET Alunos
+        const N8N_FIN_READ_URL = 'https://sua-instancia-n8n.com/webhook/financeiro-read'; // GET Financeiro
+        const N8N_FIN_PAY_URL = 'https://sua-instancia-n8n.com/webhook/financeiro-pay'; // POST Pagamento
+
+        let todosAlunos = [];
+        let todosPagamentos = [];
+        let dadosTabela = []; // Objeto unificado para renderizar
+        let chartInstance = null;
+
+        // Inicializa o mês atual no filtro
+        const hoje = new Date();
+        const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
+        document.getElementById('filterMes').value = mesAtual;
+
+        async function carregarDados() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            loading.style.display = 'block';
+            content.style.display = 'none';
+
+            try {
+                // Busca alunos e financeiro em paralelo
+                const [resAlunos, resFin] = await Promise.all([
+                    fetch(N8N_ALUNOS_URL),
+                    fetch(N8N_FIN_READ_URL)
+                ]);
+
+                const dadosAlunos = await resAlunos.json();
+                const dadosFin = await resFin.json();
+
+                todosAlunos = Array.isArray(dadosAlunos) ? dadosAlunos : [dadosAlunos].filter(a => a && a.id);
+                todosPagamentos = Array.isArray(dadosFin) ? dadosFin : [dadosFin].filter(f => f && f.id);
+
+                processarDados();
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                loading.innerHTML = '<span style="color: #e74c3c;">Erro ao carregar dados. Verifique as URLs do n8n.</span>';
+            }
+        }
+
+        function processarDados() {
+            const mesRef = document.getElementById('filterMes').value;
+            const valorMensalidade = parseFloat(document.getElementById('valorMensalidade').value) || 0;
+
+            dadosTabela = todosAlunos.map(aluno => {
+                // Procura se há um pagamento deste aluno para este mês
+                const pagamento = todosPagamentos.find(p => 
+                    String(p.idAluno) === String(aluno.id) && p.mesReferencia === mesRef
+                );
+
+                return {
+                    alunoId: aluno.id,
+                    nome: aluno.nome,
+                    categoria: aluno.categoria,
+                    mesReferencia: mesRef,
+                    valor: pagamento ? pagamento.valor : valorMensalidade,
+                    status: pagamento ? pagamento.status : 'Pendente',
+                    dataPagamento: pagamento ? pagamento.dataPagamento : null
+                };
+            });
+
+            atualizarMetricas(mesRef);
+            renderizarGrafico(mesRef);
+            renderizarTabela();
+        }
+
+        function atualizarMetricas(mesRef) {
+            const pagos = dadosTabela.filter(d => d.status === 'Pago');
+            const pendentes = dadosTabela.filter(d => d.status !== 'Pago');
+
+            const totalRecebido = pagos.reduce((acc, curr) => acc + parseFloat(curr.valor), 0);
+            const totalPendente = pendentes.reduce((acc, curr) => acc + parseFloat(curr.valor), 0);
+
+            document.getElementById('totalRecebido').innerText = totalRecebido.toFixed(2).replace('.', ',');
+            document.getElementById('totalPendente').innerText = totalPendente.toFixed(2).replace('.', ',');
+            document.getElementById('alunosPagos').innerText = pagos.length;
+            document.getElementById('totalAlunos').innerText = `/ ${dadosTabela.length}`;
+        }
+
+        function renderizarGrafico(mesRef) {
+            const pagos = dadosTabela.filter(d => d.status === 'Pago').length;
+            const pendentes = dadosTabela.length - pagos;
+
+            const ctx = document.getElementById('chartFinanceiro').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pagos', 'Pendentes'],
+                    datasets: [{
+                        data: [pagos, pendentes],
+                        backgroundColor: ['#2ecc71', '#e74c3c'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { size: 12 } } } }
+                }
+            });
+        }
+
+        function renderizarTabela() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const tbody = document.getElementById('tabela-financeiro');
+            tbody.innerHTML = '';
+
+            const filtrados = dadosTabela.filter(d => d.nome.toLowerCase().includes(termo));
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhum aluno encontrado.</td></tr>';
+                return;
+            }
+
+            filtrados.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(d => {
+                const isPago = d.status === 'Pago';
+                const badgeStatus = isPago 
+                    ? '<span class="badge badge-green"><i class="fa-solid fa-check"></i> Pago</span>' 
+                    : '<span class="badge badge-red"><i class="fa-solid fa-clock"></i> Pendente</span>';
+                
+                const dataPag = d.dataPagamento 
+                    ? new Date(d.dataPagamento).toLocaleDateString('pt-BR') 
+                    : '-';
+
+                const btnAcao = isPago 
+                    ? `<button class="btn btn-pay" disabled><i class="fa-solid fa-check"></i> Pago</button>`
+                    : `<button class="btn btn-pay" onclick="registrarPagamento('${d.alunoId}', '${d.nome}', '${d.categoria}', '${d.mesReferencia}', ${d.valor})"><i class="fa-solid fa-dollar-sign"></i> Receber</button>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${d.nome}</strong></td>
+                    <td><span class="badge badge-gold">${d.categoria}</span></td>
+                    <td>${d.mesReferencia}</td>
+                    <td>R$ ${parseFloat(d.valor).toFixed(2).replace('.', ',')}</td>
+                    <td>${badgeStatus}</td>
+                    <td>${dataPag}</td>
+                    <td>${btnAcao}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function registrarPagamento(idAluno, nomeAluno, categoria, mesReferencia, valor) {
+            if (!confirm(`Confirmar recebimento de R$ ${valor.toFixed(2)} de ${nomeAluno}?`)) return;
+
+            const payload = { idAluno, nomeAluno, categoria, mesReferencia, valor };
+
+            try {
+                const response = await fetch(N8N_FIN_PAY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Erro ao registrar');
+
+                alert('Pagamento registrado com sucesso!');
+                carregarDados(); // Recarrega tudo
+
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao registrar o pagamento. Tente novamente.');
+            }
+        }
+
+        // Eventos de Filtro
+        document.getElementById('filterMes').addEventListener('change', processarDados);
+        document.getElementById('valorMensalidade').addEventListener('change', processarDados);
+        document.getElementById('searchInput').addEventListener('input', renderizarTabela);
+
+        document.addEventListener('DOMContentLoaded', carregarDados);
+    </script>
+</body>
+</html>
